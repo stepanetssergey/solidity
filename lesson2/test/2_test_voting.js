@@ -1,4 +1,6 @@
 var VotingContract = artifacts.require('./Voting.sol')
+var VERC20 = artifacts.require('./VERC20.sol')
+var web3 = require('web3')
 
 contract("Voting contract", (accounts) => {
 
@@ -51,6 +53,14 @@ contract("Voting contract", (accounts) => {
         console.log(subject.endDate)
     })
 
+    it("Transfer token accounts 4", async () => {
+        erc20 = await VERC20.deployed()
+        // await erc20.transfer(accounts[4], web3.utils.toBN(10 * 10 ** 18))  // accounts[0] -> accounts[4]
+        await erc20.transferFrom(accounts[0], accounts[4], web3.utils.toBN(10 * 10 ** 18))
+        const balance4 = await erc20.balanceOf(accounts[4])
+        assert.equal(balance4.toString(), (10 * 10 ** 18).toString(), "Not correct balance")
+    })
+
     it("Vote for subject", async () => {
         votingContract = await VotingContract.deployed()
         await votingContract.vote(1, 7, {from: accounts[4]})
@@ -75,6 +85,19 @@ contract("Voting contract", (accounts) => {
         votingContract = await VotingContract.deployed()
         const userSubjectsAndVotes = await votingContract.SubjectPlusVoteList(accounts[4], 0)
         console.log(userSubjectsAndVotes)
+    })
+
+    it("Balance of minting token", async () => {
+        erc20 = await VERC20.deployed()
+        const balance = await erc20.balanceOf(accounts[0])
+        console.log(balance.toString())
+    })
+
+    it("Check token address", async () => {
+        erc20 = await VERC20.deployed()
+        votingContract = await VotingContract.deployed()
+        const erc20Address = await votingContract.voteTokenAddress()
+        console.log('ERC token address:', erc20.address, erc20Address)
     })
 
 })
