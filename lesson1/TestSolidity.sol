@@ -52,7 +52,7 @@ contract TestContract {
         Users[msg.sender].balance += msg.value;
     }
     
-
-    
-    
+    function checkUserBalance() public view {
+        return Users[msg.sender].balance;
+    }
 }
