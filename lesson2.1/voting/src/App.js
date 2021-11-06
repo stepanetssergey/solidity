@@ -1,30 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
-import Component from './components/Component';
-import ReactTextProvider from './context/ReactTextContextProvider';
+import { Drizzle } from '@drizzle/store'
+import { drizzleReactHooks } from '@drizzle/react-plugin'
+import { drizzleOptions } from './store/DrizzleOptions'
+import Loading from './components/Loading/Loading'
+import TokenInfo from './components/TokenInfo/TokenInfo';
+import Subjects from './components/Subjects/Subjects';
+import AddSubjects from './components/AddSubjects/AddSubjects';
+import AddAdmin from './components/AddAdmin/AddAdmin';
+
+
+const drizzle = new Drizzle(drizzleOptions)
+const { DrizzleProvider } = drizzleReactHooks;
 
 function App() {
   
   return (
-    <ReactTextProvider>
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Component />
-        <p style={{fontSize:'46px'}}>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-    </ReactTextProvider>
+    <DrizzleProvider drizzle={drizzle}>
+      <Loading>
+        <div className="App">
+           <TokenInfo/>
+        </div>
+        <div>
+          <div>Subjects</div>
+          <Subjects/>
+        </div>
+        <div>
+        <AddSubjects />
+        </div>
+
+        <div>
+          Settings
+          <div>
+          <AddAdmin />
+          </div>
+        </div>
+      </Loading>
+    </DrizzleProvider>
   );
 }
 
