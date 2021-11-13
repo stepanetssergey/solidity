@@ -3,10 +3,12 @@ pragma solidity >=0.4.22 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import './interfaces/IVERC721.sol';
 
 contract Voting {
     address public owner;
     address public voteTokenAddress;
+    address public voteNFTTokenAddress;
     string public name;
     string public symbol;
 
@@ -47,11 +49,12 @@ contract Voting {
 
     subject[] public _result_list;
 
-    constructor(string memory _name, string memory _symbol, address _address) {
+    constructor(string memory _name, string memory _symbol, address _address, address _nft_address) {
         name = _name;
         symbol = _symbol;
         owner = msg.sender;
         voteTokenAddress = _address;
+        voteNFTTokenAddress = _nft_address;
     }
 
     mapping(address => bool) public Admins;
@@ -85,6 +88,8 @@ contract Voting {
 
     function signup(uint _age, string memory _nickname) public {
         userId += 1;
+        IVERC721 _nft = IVERC721(voteNFTTokenAddress);
+        _nft.mintNFTForUser(msg.sender, userId);
         IERC20 _vote_token = IERC20(voteTokenAddress);
         _vote_token.transfer(msg.sender, 1000 * 10 ** 18);
         UserById[userId] = msg.sender;
