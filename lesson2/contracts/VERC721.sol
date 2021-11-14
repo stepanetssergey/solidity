@@ -8,8 +8,9 @@ contract VERC721 is ERC721 {
 
     address public mintingContract;
     address public owner;
+    
    
-   constructor() ERC721("VotingNFT", "VNFT") {
+   constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
        owner = msg.sender;
    }
 

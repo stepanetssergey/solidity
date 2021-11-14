@@ -1,5 +1,6 @@
 var VotingContract = artifacts.require('./Voting.sol')
 var VERC20 = artifacts.require('./VERC20.sol')
+var VERC721 = artifacts.require('./VERC721.sol')
 var Web3 = require('web3')
 
 contract("Voting contract", (accounts) => {
@@ -11,6 +12,14 @@ contract("Voting contract", (accounts) => {
 
         console.log(name)
         console.log(symbol)
+    })
+
+    it("Add voting contract address to NFT", async () => {
+        votingContract = await VotingContract.deployed()
+        votingNFTContract = await VERC721.deployed()
+        await votingNFTContract.setMintingContract(VotingContract.address)
+        votingNFTAddress = await votingNFTContract.mintingContract()
+        assert.equal(votingNFTAddress, votingContract.address, "Not correct address")
     })
     
     it("Move tokens to contract", async () => {
@@ -32,6 +41,40 @@ contract("Voting contract", (accounts) => {
         console.log((user.age).toNumber())
         console.log(user.nickname)
         console.log((user.id).toNumber())
+    })
+
+    it("Sing up NFT minting test", async () => {
+        votingNFTContract = await VERC721.deployed()
+        addressOfToken1 = await votingNFTContract.ownerOf(1)
+        assert.equal(addressOfToken1, accounts[4], "Not correct tokenId owner")
+    })
+
+    it("Sing up tokenId 1 address", async () => {
+        votingNFTContract = await VERC721.deployed()
+        tokenId = await votingNFTContract.balanceOf(accounts[4])
+        assert.equal(tokenId, 1, "Not correct tokenId owner")
+    })
+
+    it("Signup user", async () => {
+        votingContract = await VotingContract.deployed()
+        await votingContract.signup(25, "guru2", {from: accounts[5]})
+        const user = await votingContract.Users(accounts[5])
+        console.log((user.age).toNumber())
+        console.log(user.nickname)
+        console.log((user.id).toNumber())
+    })
+
+    it("Sing up NFT minting test", async () => {
+        votingNFTContract = await VERC721.deployed()
+        addressOfToken1 = await votingNFTContract.ownerOf(2)
+        assert.equal(addressOfToken1, accounts[5], "Not correct tokenId owner")
+    })
+
+    it("Sing up tokenId 2 address", async () => {
+        votingNFTContract = await VERC721.deployed()
+        tokenId = await votingNFTContract.balanceOf(accounts[5])
+        //console.log('TokenID 2 for account 5', tokenId.toNumber())
+        assert.equal(tokenId, 1, "Not correct tokenId owner")
     })
 
     it("Get tokens after sign up", async () => {
@@ -68,12 +111,9 @@ contract("Voting contract", (accounts) => {
         await votingContract.addSubject("Name", "description test", 10, 36258237, 459998987, {from: accounts[5]})
 
         const subject = await votingContract.Subjects(1)
-
-        console.log(subject.name)
-        console.log(subject.description)
-        console.log(subject.rate)
-        console.log(subject.startDate)
-        console.log(subject.endDate)
+        nftCollectionAddress = await votingContract.CollectionBySubjectID(1)
+        console.log('SUBJECT COLLECTION NFT ADDRESS', nftCollectionAddress)
+        
     })
 
     // it("Transfer token accounts 4", async () => {

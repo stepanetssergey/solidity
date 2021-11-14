@@ -3,7 +3,8 @@ pragma solidity >=0.4.22 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import './interfaces/IVERC721.sol';
+//import './interfaces/IVERC721.sol';
+import './VERC721.sol';
 
 contract Voting {
     address public owner;
@@ -60,8 +61,11 @@ contract Voting {
     mapping(address => bool) public Admins;
     mapping(address => user) public Users;
     mapping(uint => address) public UserById;
+    mapping(uint => user) public UsersNFT;
 
     mapping(uint => subject) public Subjects;
+    mapping(uint => address) public CollectionBySubjectID;
+    mapping(uint => uint[]) public SubjectNFTIdList;
 
     mapping(address => uint[]) public UserSubjects;
 
@@ -88,7 +92,7 @@ contract Voting {
 
     function signup(uint _age, string memory _nickname) public {
         userId += 1;
-        IVERC721 _nft = IVERC721(voteNFTTokenAddress);
+        VERC721 _nft = VERC721(voteNFTTokenAddress);
         _nft.mintNFTForUser(msg.sender, userId);
         IERC20 _vote_token = IERC20(voteTokenAddress);
         _vote_token.transfer(msg.sender, 1000 * 10 ** 18);
@@ -96,7 +100,15 @@ contract Voting {
         Users[msg.sender].id = userId;
         Users[msg.sender].age = _age;
         Users[msg.sender].nickname = _nickname;
+        UsersNFT[userId].id = userId;
+        UsersNFT[userId].age = _age;
+        UsersNFT[userId].nickname = _nickname;
+    }
 
+    function signUpToSubject(uint _subjectId) public {
+        VERC721 _nft = VERC721(CollectionBySubjectID[_subjectId]);
+        _nft.mintNFTForUser(msg.sender, userId);
+        // balanceOf subjectId NFT -> 0 revert
     }
 
     function addSubject(string memory _name,
@@ -107,6 +119,9 @@ contract Voting {
 
         subjectId += 1;
 
+        address _nft = address(new VERC721{salt: keccak256(abi.encode(_name))}(_description, _name));
+        CollectionBySubjectID[subjectId] = _nft;
+
         Subjects[subjectId].name = _name;
         Subjects[subjectId].description = _description;
         Subjects[subjectId].rate = _rate;
@@ -115,10 +130,21 @@ contract Voting {
         _result_list.push(Subjects[subjectId]);
     }
 
+    function checkNFTOwner(address _address) internal view returns(bool) {
+        uint _nftId = Users[_address].id;
+        VERC721 _nft = VERC721(voteNFTTokenAddress);
+        address _ownerOfCurrentToken = _nft.ownerOf(_nftId);
+        if (_ownerOfCurrentToken == _address) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function vote(uint _subjectId, uint _vote, uint _token_amount) public {
         require(Users[msg.sender].id != 0, "Not registered user!");
         require(_vote <= Subjects[_subjectId].rate, "Subject rate cannot be more than rate");
-
+        require(checkNFTOwner(msg.sender ) == true, "Check NFT owner");
         IERC20 _vote_token = IERC20(voteTokenAddress);
         require(_vote_token.balanceOf(msg.sender) > 0, "Onle tokens owners");
          // transfer from 
