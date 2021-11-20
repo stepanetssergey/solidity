@@ -1,0 +1,21 @@
+{
+  "name": "blockchainapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "eth-sig-util": "^3.0.1",
+    "ethereumjs-util": "^7.1.3",
+    "express": "^4.17.1",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "^1.6.1"
+  }
+}
